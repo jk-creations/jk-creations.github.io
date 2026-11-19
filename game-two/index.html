@@ -130,7 +130,12 @@
               }).then((unityInstance) => {
                 loadingBar.style.display = "none";
                 fullscreenButton.onclick = () => {
-                  unityInstance.SetFullscreen(1);
+                  var target = document.documentElement;
+                  if (target.requestFullscreen) {
+                    target.requestFullscreen().catch(() => unityInstance.SetFullscreen(1));
+                  } else if (unityInstance.SetFullscreen) {
+                    unityInstance.SetFullscreen(1);
+                  }
                 };
               }).catch((message) => {
                 alert(message);
