@@ -6,6 +6,7 @@
     <title>Unity WebGL Player | BDayProj</title>
     <link rel="shortcut icon" href="TemplateData/favicon.ico">
     <link rel="stylesheet" href="TemplateData/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   </head>
   <body>
     <div id="unity-container" class="unity-desktop">
@@ -88,10 +89,6 @@
       if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
         // Mobile device style: fill the whole browser client area with the game canvas:
 
-        var meta = document.createElement('meta');
-        meta.name = 'viewport';
-        meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
-        document.getElementsByTagName('head')[0].appendChild(meta);
         container.className = "unity-mobile";
         canvas.className = "unity-mobile";
 
@@ -99,7 +96,23 @@
         // performance, uncomment the following line:
         // config.devicePixelRatio = 1;
 
+        var fitCanvas = function() {
+          var buildAspect = 720 / 1280;
+          var viewportWidth = window.innerWidth;
+          var viewportHeight = window.innerHeight;
+          var viewportAspect = viewportWidth / viewportHeight;
 
+          if (viewportAspect < buildAspect) {
+            canvas.style.width = viewportWidth + "px";
+            canvas.style.height = (viewportWidth / buildAspect) + "px";
+          } else {
+            canvas.style.height = viewportHeight + "px";
+            canvas.style.width = (viewportHeight * buildAspect) + "px";
+          }
+        };
+        fitCanvas();
+        window.addEventListener("resize", fitCanvas);
+        window.addEventListener("orientationchange", fitCanvas);
       } else {
         // Desktop style: Render the game canvas in a window that can be maximized to fullscreen:
 
