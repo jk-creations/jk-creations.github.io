@@ -58,11 +58,40 @@
       }
 
       var buildUrl = "Build";
-      var loaderUrl = buildUrl + "/WebGL build.loader.js";
+      var buildName = "Ishu WebGL build";
+
+      // Capture the AudioContext Unity creates and resume it during a real browser gesture.
+      var unityAudioContext = null;
+      var OriginalAudioContext = window.AudioContext || window.webkitAudioContext;
+      if (OriginalAudioContext) {
+        var WrappedAudioContext = function() {
+          unityAudioContext = Reflect.construct(OriginalAudioContext, arguments);
+          return unityAudioContext;
+        };
+        WrappedAudioContext.prototype = OriginalAudioContext.prototype;
+        window.AudioContext = WrappedAudioContext;
+        if (window.webkitAudioContext) {
+          window.webkitAudioContext = WrappedAudioContext;
+        }
+      }
+
+      function resumeUnityAudio() {
+        if (!unityAudioContext) return;
+        if (unityAudioContext.state === "suspended" || unityAudioContext.state === "interrupted") {
+          unityAudioContext.resume().catch(function(error) {
+            console.warn("Could not resume Unity audio context:", error);
+          });
+        }
+      }
+
+      window.addEventListener("pointerdown", resumeUnityAudio, true);
+      window.addEventListener("keydown", resumeUnityAudio, true);
+
+      var loaderUrl = buildUrl + "/" + buildName + ".loader.js";
       var config = {
-        dataUrl: buildUrl + "/WebGL build.data",
-        frameworkUrl: buildUrl + "/WebGL build.framework.js",
-        codeUrl: buildUrl + "/WebGL build.wasm",
+        dataUrl: buildUrl + "/" + buildName + ".data",
+        frameworkUrl: buildUrl + "/" + buildName + ".framework.js",
+        codeUrl: buildUrl + "/" + buildName + ".wasm",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "JKCreations",
         productName: "BDayProj",
